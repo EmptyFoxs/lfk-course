@@ -5,45 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ЛФК Тренер</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #121212; color: #ffffff; }
-        .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; }
-        
-        /* Стили кнопки Графика */
-        header { padding: 20px; background: #1f1f1f; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .history-btn { background: #2c2c2e; border: none; color: #0a84ff; padding: 10px 15px; border-radius: 12px; font-size: 18px; cursor: pointer; transition: 0.2s; }
-        .history-btn:active { background: #3a3a3c; }
-
-        .video-wrapper { width: 100%; background: #000; aspect-ratio: 16 / 9; }
-        video { width: 100%; height: 100%; object-fit: contain; }
-        .lesson-details { padding: 20px; background: #1c1c1e; }
-        .action-btn { width: 100%; padding: 16px; background: #0a84ff; color: #fff; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; }
-        .action-btn.completed { background: #30d158; }
-        
-        .playlist { padding: 20px; }
-        .playlist-item { padding: 16px; background: #1c1c1e; margin-bottom: 10px; border-radius: 12px; border: 2px solid transparent; }
-        .playlist-item.active { border-color: #0a84ff; background: #2c2c2e; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 30; padding: 20px; overflow-y: auto; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background-color: #121212; color: #fff; }
+        .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; padding: 20px; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; margin-bottom: 20px; }
+        video { width: 100%; height: 100%; }
+        .action-btn { width: 100%; padding: 16px; background: #0a84ff; border: none; color: white; border-radius: 12px; font-weight: 600; margin-bottom: 10px; }
+        .reset-btn { width: 100%; padding: 10px; background: #ff453a; border: none; color: white; border-radius: 12px; margin-top: 20px; }
+        .playlist-item { padding: 16px; background: #1c1c1e; margin-bottom: 8px; border-radius: 10px; }
+        .active { border: 2px solid #0a84ff; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <header>
+        <header style="display:flex; justify-content:space-between; margin-bottom:20px;">
             <h1>ЛФК</h1>
-            <button class="history-btn" onclick="document.getElementById('history-modal').style.display='block'">📊</button>
+            <button onclick="document.getElementById('modal').style.display='block'">График</button>
         </header>
+
         <div class="video-wrapper"><video id="player" controls playsinline></video></div>
-        <div class="lesson-details">
-            <h2 id="title">Загрузка...</h2>
-            <button id="status-btn" class="action-btn" onclick="toggleTask()">Отметить выполнение</button>
-        </div>
-        <div id="playlist" class="playlist"></div>
+        <h2 id="title">Загрузка...</h2>
+        <button id="status-btn" class="action-btn" onclick="toggleTask()">Отметить выполнение</button>
+        <div id="playlist"></div>
+        
+        <button class="reset-btn" onclick="hardReset()">Сбросить всё (Начать заново)</button>
     </div>
 
-    <div id="history-modal" class="modal">
-        <button style="padding:10px;" onclick="this.parentElement.style.display='none'">Закрыть</button>
-        <h2 style="margin: 20px 0;">История</h2>
+    <div id="modal" class="modal">
+        <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+        <h2 style="margin:20px 0;">История</h2>
         <div id="history-list"></div>
     </div>
 
@@ -51,38 +42,48 @@
         const lessons = [
             { id: 'u1', src: '16224109988534.mp4', title: 'Урок 1: Разминка' },
             { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Активация' },
-            { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Основной блок' },
+            { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Сила' },
             { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Динамика' },
             { id: 'u5', src: '16224359484086.mp4', title: 'Урок 5: Укрепление' },
             { id: 'u6', src: '16224629033654.mp4', title: 'Урок 6: Заминка' }
         ];
 
         let currentIndex = 0;
-        let progress = JSON.parse(localStorage.getItem('progress')) || {};
-        let history = JSON.parse(localStorage.getItem('history')) || [];
+        
+        // Функция полной очистки
+        function hardReset() {
+            if(confirm("Удалить все данные, историю и сбросить кэш?")) {
+                localStorage.clear();
+                location.reload(true); // Принудительная перезагрузка
+            }
+        }
+
+        function loadData() {
+            return {
+                progress: JSON.parse(localStorage.getItem('progress') || '{}'),
+                history: JSON.parse(localStorage.getItem('history') || '[]'),
+                lastDate: localStorage.getItem('last_date') || ''
+            };
+        }
+
+        let data = loadData();
         const today = new Date().toLocaleDateString();
 
-        // СБРОС: Если новый день, чистим прогресс И флаг "боль уже введена"
-        if (localStorage.getItem('last_date') !== today) {
-            progress = {};
-            localStorage.setItem('pain_submitted', 'false'); 
+        if (data.lastDate !== today) {
+            data.progress = {};
             localStorage.setItem('last_date', today);
+            localStorage.setItem('progress', '{}');
         }
 
         function toggleTask() {
-            const lesson = lessons[currentIndex];
-            progress[lesson.id] = !progress[lesson.id];
-            localStorage.setItem('progress', JSON.stringify(progress));
+            const id = lessons[currentIndex].id;
+            data.progress[id] = !data.progress[id];
+            localStorage.setItem('progress', JSON.stringify(data.progress));
             
-            // Проверка: все ли выполнены и спрашивали ли мы уже боль сегодня?
-            const allFinished = lessons.every(l => progress[l.id]);
-            const painSubmitted = localStorage.getItem('pain_submitted') === 'true';
-
-            if (allFinished && !painSubmitted) {
-                const pain = prompt("Тренировка завершена! Оцените уровень дискомфорта (1-10):", "0");
-                history.unshift({ date: today, pain: pain });
-                localStorage.setItem('history', JSON.stringify(history));
-                localStorage.setItem('pain_submitted', 'true'); // Запоминаем, что спросили
+            if (Object.keys(data.progress).length === 6 && data.progress[id]) {
+                const pain = prompt("Все уроки выполнены! Оцените дискомфорт (1-10):", "0");
+                data.history.unshift({ date: today, pain: pain });
+                localStorage.setItem('history', JSON.stringify(data.history));
             }
             render();
         }
@@ -93,21 +94,21 @@
             document.getElementById('player').src = current.src;
             
             const btn = document.getElementById('status-btn');
-            btn.className = 'action-btn ' + (progress[current.id] ? 'completed' : '');
-            btn.textContent = progress[current.id] ? 'Выполнено ✓' : 'Отметить выполнение';
+            btn.textContent = data.progress[current.id] ? 'Выполнено ✓' : 'Отметить выполнение';
+            btn.style.background = data.progress[current.id] ? '#30d158' : '#0a84ff';
 
             const list = document.getElementById('playlist');
             list.innerHTML = '';
             lessons.forEach((l, i) => {
                 const div = document.createElement('div');
                 div.className = 'playlist-item ' + (i === currentIndex ? 'active' : '');
-                div.innerHTML = l.title + (progress[l.id] ? ' ✅' : '');
+                div.innerHTML = l.title + (data.progress[l.id] ? ' ✅' : '');
                 div.onclick = () => { currentIndex = i; render(); };
                 list.appendChild(div);
             });
             
-            document.getElementById('history-list').innerHTML = history.map(h => 
-                `<div style="padding:15px; background:#1c1c1e; margin-bottom:5px; border-radius:8px;">${h.date} — Боль: ${h.pain}/10</div>`
+            document.getElementById('history-list').innerHTML = data.history.map(h => 
+                `<div style="padding:10px; border-bottom:1px solid #333;">${h.date} — Боль: ${h.pain}/10</div>`
             ).join('');
         }
         render();
