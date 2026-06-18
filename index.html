@@ -8,32 +8,33 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background-color: #121212; color: #fff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #121212; color: #ffffff; }
         .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; padding: 20px; }
         
         /* Прогресс-бар */
         .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-bottom: 20px; }
         .progress-fill { height: 100%; background: #30d158; width: 0%; border-radius: 3px; transition: 0.5s; }
 
-        /* Стильная кнопка Графика */
+        /* Элементы управления */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-graph { background: transparent; border: 1px solid #0a84ff; color: #0a84ff; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; }
-
         .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
         video { width: 100%; height: 100%; }
         
         .btn-main { width: 100%; padding: 16px; background: #0a84ff; border: none; color: white; border-radius: 12px; font-weight: 600; margin-bottom: 10px; font-size: 16px; }
-        .btn-finish { width: 100%; padding: 16px; background: #30d158; border: none; color: white; border-radius: 12px; font-weight: 600; font-size: 16px; }
+        .btn-finish { width: 100%; padding: 16px; background: #30d158; border: none; color: white; border-radius: 12px; font-weight: 600; font-size: 16px; margin-bottom: 20px; }
         
-        .playlist-item { padding: 16px; background: #1c1c1e; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; }
+        .playlist-item { padding: 16px; background: #1c1c1e; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; cursor: pointer; }
+        .playlist-item.active { border: 2px solid #0a84ff; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; padding: 20px; overflow-y: auto; z-index: 99; }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="header">
-            <h1>Моя ЛФК</h1>
+            <h1>ЛФК Тренер</h1>
             <button class="btn-graph" onclick="document.getElementById('modal').style.display='block'">📊 Статистика</button>
         </div>
 
@@ -43,15 +44,16 @@
         <h2 id="title" style="margin-bottom:15px;">Загрузка...</h2>
         
         <button id="status-btn" class="btn-main" onclick="toggleTask()">Отметить выполнение</button>
-        <button class="btn-finish" onclick="finishDay()">Завершить день (Боль)</button>
+        <button class="btn-finish" onclick="finishDay()">Завершить день и оценить боль</button>
         
         <div id="playlist"></div>
-        <button onclick="localStorage.clear(); location.reload();" style="margin-top:20px; color:red; background:none; border:none; width:100%;">Сбросить всё</button>
+        
+        <button onclick="localStorage.clear(); location.reload();" style="margin-top:40px; color:#ff453a; background:none; border:none; width:100%; font-size: 12px;">Сбросить все данные</button>
     </div>
 
     <div id="modal" class="modal">
-        <button style="padding:10px;" onclick="this.parentElement.style.display='none'">Закрыть</button>
-        <h2 style="margin: 20px 0;">История тренировок</h2>
+        <button style="padding:10px; margin-bottom:20px;" onclick="this.parentElement.style.display='none'">Закрыть</button>
+        <h2 style="margin-bottom:20px;">История тренировок</h2>
         <div id="history-list"></div>
     </div>
 
@@ -66,10 +68,11 @@
         ];
 
         let currentIndex = 0;
-        let progress = JSON.parse(localStorage.getItem('progress')) || {};
-        let history = JSON.parse(localStorage.getItem('history')) || [];
+        let progress = JSON.parse(localStorage.getItem('progress') || '{}');
+        let history = JSON.parse(localStorage.getItem('history') || '[]');
         const today = new Date().toLocaleDateString();
 
+        // Сброс прогресса при новом дне
         if (localStorage.getItem('last_date') !== today) {
             progress = {};
             localStorage.setItem('last_date', today);
@@ -85,10 +88,20 @@
         function finishDay() {
             const completed = lessons.filter(l => progress[l.id]).map(l => l.title);
             if (completed.length === 0) { alert("Вы ничего не выполнили сегодня!"); return; }
+            
             const pain = prompt("Оцените общий уровень дискомфорта (1-10):", "0");
-            history.unshift({ date: today, completed: completed.join(', '), pain: pain });
+            
+            // Обновляем запись, если она уже есть за сегодня, или создаем новую
+            let todayEntry = history.find(h => h.date === today);
+            if (todayEntry) {
+                todayEntry.completed = completed.join(', ');
+                todayEntry.pain = pain;
+            } else {
+                history.unshift({ date: today, completed: completed.join(', '), pain: pain });
+            }
+            
             localStorage.setItem('history', JSON.stringify(history));
-            alert("Результат сохранен!");
+            alert("Данные сохранены!");
             render();
         }
 
@@ -108,7 +121,7 @@
             list.innerHTML = '';
             lessons.forEach((l, i) => {
                 const div = document.createElement('div');
-                div.className = 'playlist-item';
+                div.className = 'playlist-item ' + (i === currentIndex ? 'active' : '');
                 div.innerHTML = `<span>${l.title}</span> <span>${progress[l.id] ? '✅' : '⚪'}</span>`;
                 div.onclick = () => { currentIndex = i; render(); };
                 list.appendChild(div);
@@ -122,8 +135,7 @@
                 </div>`
             ).join('');
         }
-
-        // Запрос уведомлений
+        
         if ("Notification" in window) Notification.requestPermission();
         render();
     </script>
