@@ -3,178 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Онлайн-Курс ЛФК</title>
+    <title>ЛФК Тренер</title>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2942/2942767.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Мой Курс">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #121212; color: #ffffff; -webkit-font-smoothing: antialiased; display: block; }
-        .app-container { max-width: 600px; margin: 0 auto; display: block; min-height: 100vh; background-color: #121212; position: relative;}
-        header { padding: 20px; background: #1f1f1f; border-bottom: 1px solid #2c2c2e; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center;}
-        header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; margin: 0; text-align: center; flex-grow: 1;}
-        .history-btn { background: none; border: none; color: #0a84ff; font-size: 16px; cursor: pointer; font-weight: 500;}
-        .video-wrapper { width: 100%; background: #000; position: relative; aspect-ratio: 16 / 9; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #121212; color: #ffffff; }
+        .app-container { max-width: 600px; margin: 0 auto; min-height: 100vh; }
+        /* Прогресс бар */
+        #progress-container { width: 100%; height: 6px; background: #333; position: sticky; top: 0; z-index: 20; }
+        #progress-bar { height: 100%; background: #30d158; width: 0%; transition: width 0.5s ease; }
+        header { padding: 20px; background: #1f1f1f; display: flex; justify-content: space-between; align-items: center; }
+        .video-wrapper { width: 100%; background: #000; aspect-ratio: 16 / 9; }
         video { width: 100%; height: 100%; object-fit: contain; }
-        .lesson-details { padding: 20px; background: #1c1c1e; border-bottom: 1px solid #2c2c2e; }
-        .lesson-details h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
-        .lesson-details p { font-size: 14px; color: #aeaeb2; line-height: 1.4; margin-bottom: 16px; }
-        .action-btn { display: block; width: 100%; padding: 16px; background: #0a84ff; color: #ffffff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; text-align: center; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-        .action-btn:active { transform: scale(0.98); }
+        .lesson-details { padding: 20px; background: #1c1c1e; }
+        .action-btn { width: 100%; padding: 16px; background: #0a84ff; color: #fff; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
         .action-btn.completed { background: #30d158; }
-        .playlist-header { padding: 20px 20px 10px 20px; font-size: 14px; text-transform: uppercase; color: #8e8e93; font-weight: 600; letter-spacing: 0.5px; }
-        .playlist { padding: 0 20px 30px 20px; }
-        .playlist-item { display: flex; align-items: center; padding: 16px; background: #1c1c1e; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, background-color 0.2s; }
-        .playlist-item.active { border-color: #0a84ff; background: #2c2c2e; }
-        .item-info { flex-grow: 1; }
-        .item-title { font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
-        .item-status { font-size: 13px; color: #8e8e93; }
-        .playlist-item.active .item-title { color: #0a84ff; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20; justify-content: center; align-items: flex-end; }
-        .modal.active { display: flex; }
-        .modal-content { background: #1c1c1e; width: 100%; max-width: 600px; height: 80vh; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; display: flex; flex-direction: column;}
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { font-size: 20px; margin: 0; }
-        .close-modal { background: #3a3a3c; border: none; color: white; width: 30px; height: 30px; border-radius: 15px; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .history-container { flex-grow: 1; overflow-y: auto; }
-        .history-day { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;}
-        .history-date { font-size: 14px; color: #8e8e93; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;}
-        .history-item { font-size: 15px; color: #fff;}
-        .empty-history { text-align: center; color: #8e8e93; margin-top: 50px; font-size: 15px;}
+        .playlist-item { padding: 16px; background: #1c1c1e; margin-bottom: 8px; border-radius: 12px; border-left: 4px solid transparent; }
+        .playlist-item.active { border-left-color: #0a84ff; background: #2c2c2e; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 30; padding: 20px; overflow-y: auto; }
     </style>
 </head>
 <body>
+    <div id="progress-container"><div id="progress-bar"></div></div>
     <div class="app-container">
         <header>
-            <div style="width: 70px;"></div>
-            <h1>Курс ЛФК</h1>
-            <button class="history-btn" id="open-history">График</button>
+            <h1>Моя ЛФК</h1>
+            <button onclick="document.getElementById('history-modal').style.display='block'">График</button>
         </header>
-        
-        <div class="video-wrapper">
-            <video id="player" controls playsinline>
-                <source src="16224109988534.mp4" type="video/mp4">
-            </video>
-        </div>
-        
+        <div class="video-wrapper"><video id="player" controls playsinline></video></div>
         <div class="lesson-details">
             <h2 id="title">Загрузка...</h2>
-            <p id="desc">Выберите упражнение из списка.</p>
-            <button id="status-btn" class="action-btn">Отметить как выполненное</button>
+            <button id="status-btn" class="action-btn" onclick="toggleTask()">Отметить выполнение</button>
         </div>
-        
-        <div class="playlist-header">Список упражнений</div>
-        <div class="playlist" id="playlist-container"></div>
+        <div id="playlist" style="padding: 20px;"></div>
     </div>
 
-    <div class="modal" id="history-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>График занятий</h2>
-                <button class="close-modal" id="close-history">✕</button>
-            </div>
-            <div class="history-container" id="history-container"></div>
-        </div>
+    <div id="history-modal" class="modal">
+        <button onclick="this.parentElement.style.display='none'">Закрыть</button>
+        <h2 style="margin: 20px 0;">История</h2>
+        <div id="history-list"></div>
     </div>
 
     <script>
         const lessons = [
             { id: 'u1', src: '16224109988534.mp4', title: 'Урок 1: Разминка' },
-            { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Базовая активация' },
+            { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Активация' },
             { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Основной блок' },
-            { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Интенсив' },
+            { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Динамика' },
             { id: 'u5', src: '16224359484086.mp4', title: 'Урок 5: Укрепление' },
             { id: 'u6', src: '16224629033654.mp4', title: 'Урок 6: Заминка' }
         ];
 
         let currentIndex = 0;
-        let userProgress = JSON.parse(localStorage.getItem('lfc_progress')) || {};
-        let userHistory = JSON.parse(localStorage.getItem('lfc_history')) || [];
-        const todayString = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        let progress = JSON.parse(localStorage.getItem('progress')) || {};
+        let history = JSON.parse(localStorage.getItem('history')) || [];
+        const today = new Date().toLocaleDateString();
 
-        // Сброс дня
-        if (localStorage.getItem('lfc_last_date') !== todayString) {
-            userProgress = {};
-            localStorage.setItem('lfc_last_date', todayString);
+        if (localStorage.getItem('last_date') !== today) {
+            progress = {};
+            localStorage.setItem('last_date', today);
         }
 
-        const player = document.getElementById('player');
-        const titleView = document.getElementById('title');
-        const statusBtn = document.getElementById('status-btn');
-        const playlistContainer = document.getElementById('playlist-container');
-
-        function initLesson(index) {
-            currentIndex = index;
-            player.src = lessons[index].src;
-            titleView.textContent = lessons[index].title;
-            updateButton();
-            renderPlaylist();
-        }
-
-        function updateButton() {
-            statusBtn.textContent = userProgress[lessons[currentIndex].id] ? 'Выполнено ✓' : 'Отметить как выполненное';
-            statusBtn.className = 'action-btn ' + (userProgress[lessons[currentIndex].id] ? 'completed' : '');
-        }
-
-        statusBtn.addEventListener('click', () => {
-            const currentId = lessons[currentIndex].id;
-            userProgress[currentId] = !userProgress[currentId];
-            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
-
-            // Проверка: завершены ли все 6 уроков?
-            const allFinished = lessons.every(l => userProgress[l.id] === true);
+        function toggleTask() {
+            const id = lessons[currentIndex].id;
+            progress[id] = !progress[id];
+            localStorage.setItem('progress', JSON.stringify(progress));
             
-            if (allFinished) {
-                // Проверяем, не вносили ли мы уже боль сегодня
-                const todayEntry = userHistory.find(h => h.date === todayString);
-                if (!todayEntry) {
-                    const pain = prompt("Все уроки выполнены! Оцените общий уровень дискомфорта (1-10):", "0");
-                    userHistory.unshift({ date: todayString, pain: pain });
-                    localStorage.setItem('lfc_history', JSON.stringify(userHistory));
-                }
+            // Если все выполнено
+            if (Object.keys(progress).length === 6 && progress[id]) {
+                const pain = prompt("Все сделано! Оцените боль (1-10):", "0");
+                history.unshift({ date: today, pain: pain });
+                localStorage.setItem('history', JSON.stringify(history));
             }
-
-            updateButton();
-            renderPlaylist();
-        });
-
-        function renderPlaylist() {
-            playlistContainer.innerHTML = '';
-            lessons.forEach((l, idx) => {
-                const item = document.createElement('div');
-                item.className = `playlist-item ${idx === currentIndex ? 'active' : ''}`;
-                item.innerHTML = `<div class="item-info"><div class="item-title">${l.title}</div><div class="item-status">${userProgress[l.id] ? 'Выполнено' : 'Предстоит'}</div></div>`;
-                item.onclick = () => initLesson(idx);
-                playlistContainer.appendChild(item);
-            });
+            render();
         }
 
-        document.getElementById('open-history').onclick = () => {
-            const histCont = document.getElementById('history-container');
-            histCont.innerHTML = userHistory.length ? '' : '<div class="empty-history">История пуста.</div>';
-            userHistory.forEach(h => {
-                histCont.innerHTML += `<div class="history-day"><div class="history-date">${h.date}</div><div class="history-item">Общий дискомфорт: ${h.pain}/10</div></div>`;
-            });
-            document.getElementById('history-modal').classList.add('active');
-        };
+        function render() {
+            const current = lessons[currentIndex];
+            document.getElementById('title').textContent = current.title;
+            document.getElementById('player').src = current.src;
+            
+            const btn = document.getElementById('status-btn');
+            btn.className = 'action-btn ' + (progress[current.id] ? 'completed' : '');
+            btn.textContent = progress[current.id] ? 'Выполнено ✓' : 'Отметить выполнение';
 
-        document.getElementById('close-history').onclick = () => document.getElementById('history-modal').classList.remove('active');
+            // Обновление прогресс-бара
+            const completedCount = Object.keys(progress).length;
+            document.getElementById('progress-bar').style.width = (completedCount / 6 * 100) + '%';
 
-        if ("Notification" in window) Notification.requestPermission();
-        // Функция для проверки времени и отправки уведомления в 19:00
-setInterval(() => {
-    const now = new Date();
-    if (now.getHours() === 19 && now.getMinutes() === 0) {
-        if (Notification.permission === "granted") {
-            new Notification("Время для ЛФК!", {
-                body: "Не забудьте выполнить упражнения и отметить прогресс.",
-                icon: "https://cdn-icons-png.flaticon.com/512/2942/2942767.png"
+            const list = document.getElementById('playlist');
+            list.innerHTML = '';
+            lessons.forEach((l, i) => {
+                const div = document.createElement('div');
+                div.className = 'playlist-item ' + (i === currentIndex ? 'active' : '');
+                div.innerHTML = l.title + (progress[l.id] ? ' ✅' : '');
+                div.onclick = () => { currentIndex = i; render(); };
+                list.appendChild(div);
             });
+            
+            document.getElementById('history-list').innerHTML = history.map(h => `<div style="padding:10px; border-bottom:1px solid #333;">${h.date} — Боль: ${h.pain}</div>`).join('');
         }
-    }
-}, 60000); // Проверяет каждую минуту
-        initLesson(0);
-    </script>
+        render();
+        // Напоминание в 19:00
+    setInterval(() => {
+        const now = new Date();
+        if (now.getHours() === 19 && now.getMinutes() === 0) {
+            if (Notification.permission === "granted") {
+                new Notification("Время для ЛФК!", {
+                    body: "Не забудьте выполнить упражнения и отметить прогресс.",
+                });
+            }
+        }
+    }, 60000); // Проверка каждую минуту
+    </script> 
 </body>
 </html>
