@@ -232,7 +232,26 @@
             historyModal.classList.remove('active');
         });
 
-        initLesson(0);
+        initLesson(0);statusBtn.addEventListener('click', () => {
+        const currentId = lessons[currentIndex].id;
+        if (!userProgress[currentId]) {
+            // Запрашиваем уровень боли
+            const painLevel = prompt("Оцените уровень дискомфорта (1-10)?", "0");
+            const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            userProgress[currentId] = true;
+            userHistory.unshift({ id: currentId, title: lessons[currentIndex].title, date: today, pain: painLevel });
+            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
+            localStorage.setItem('lfc_history', JSON.stringify(userHistory));
+        }
+        updateButton();
+        renderPlaylist();
+    });
+
+    // Логика Push-уведомлений
+    if ("Notification" in window) {
+        Notification.requestPermission();
+    }
     </script>
 </body>
 </html>
