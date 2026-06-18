@@ -1,237 +1,227 @@
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;ru&quot;&gt;
-&lt;head&gt;
-&lt;meta charset=&quot;UTF-8&quot;&gt;
-&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0,
-user-scalable=no&quot;&gt;
-&lt;title&gt;Онлайн-Курс ЛФК&lt;/title&gt;
-&lt;meta name=&quot;apple-mobile-web-app-capable&quot; content=&quot;yes&quot;&gt;
-&lt;meta name=&quot;apple-mobile-web-app-status-bar-style&quot; content=&quot;black-translucent&quot;&gt;
-&lt;meta name=&quot;apple-mobile-web-app-title&quot; content=&quot;Мой Курс&quot;&gt;
-&lt;style&gt;
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system,
-BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-
-color: transparent; }
-body { background-color: #121212; color: #ffffff; -webkit-font-smoothing: antialiased;
-display: block; }
-.app-container { max-width: 600px; margin: 0 auto; display: block; min-height: 100vh;
-background-color: #121212; position: relative;}
-header { padding: 20px; background: #1f1f1f; border-bottom: 1px solid #2c2c2e; position:
-sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items:
-center;}
-header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; margin: 0; text-
-align: center; flex-grow: 1;}
-.history-btn { background: none; border: none; color: #0a84ff; font-size: 16px; cursor:
-pointer; font-weight: 500;}
-.video-wrapper { width: 100%; background: #000; position: relative; aspect-ratio: 16 /
-9; }
-video { width: 100%; height: 100%; object-fit: contain; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Онлайн-Курс ЛФК</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Мой Курс">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #121212; color: #ffffff; -webkit-font-smoothing: antialiased; display: block; }
+        .app-container { max-width: 600px; margin: 0 auto; display: block; min-height: 100vh; background-color: #121212; position: relative;}
+        header { padding: 20px; background: #1f1f1f; border-bottom: 1px solid #2c2c2e; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center;}
+        header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.5px; margin: 0; text-align: center; flex-grow: 1;}
+        .history-btn { background: none; border: none; color: #0a84ff; font-size: 16px; cursor: pointer; font-weight: 500;}
+        .video-wrapper { width: 100%; background: #000; position: relative; aspect-ratio: 16 / 9; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        .lesson-details { padding: 20px; background: #1c1c1e; border-bottom: 1px solid #2c2c2e; }
+        .lesson-details h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
+        .lesson-details p { font-size: 14px; color: #aeaeb2; line-height: 1.4; margin-bottom: 16px; }
+        .action-btn { display: block; width: 100%; padding: 16px; background: #0a84ff; color: #ffffff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; text-align: center; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn.completed { background: #30d158; }
+        .playlist-header { padding: 20px 20px 10px 20px; font-size: 14px; text-transform: uppercase; color: #8e8e93; font-weight: 600; letter-spacing: 0.5px; }
+        .playlist { padding: 0 20px 30px 20px; }
+        .playlist-item { display: flex; align-items: center; padding: 16px; background: #1c1c1e; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, background-color 0.2s; }
+        .playlist-item.active { border-color: #0a84ff; background: #2c2c2e; }
+        .item-info { flex-grow: 1; }
+        .item-title { font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
+        .item-status { font-size: 13px; color: #8e8e93; }
+        .playlist-item.active .item-title { color: #0a84ff; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 20; justify-content: center; align-items: flex-end; }
+        .modal.active { display: flex; }
+        .modal-content { background: #1c1c1e; width: 100%; max-width: 600px; height: 80vh; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; display: flex; flex-direction: column;}
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 20px; margin: 0; }
+        .close-modal { background: #3a3a3c; border: none; color: white; width: 30px; height: 30px; border-radius: 15px; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .history-container { flex-grow: 1; overflow-y: auto; }
+        .history-day { margin-bottom: 20px; }
+        .history-date { font-size: 14px; color: #8e8e93; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;}
+        .history-item { background: #2c2c2e; padding: 12px 16px; border-radius: 10px; margin-bottom: 6px; font-size: 15px; color: #fff;}
+        .empty-history { text-align: center; color: #8e8e93; margin-top: 50px; font-size: 15px;}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div style="width: 70px;"></div>
+            <h1>Курс ЛФК</h1>
+            <button class="history-btn" id="open-history">График</button>
+        </header>
+        
+        <div class="video-wrapper">
+            <video id="player" controls playsinline>
+                <source src="16224109988534.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+        </div>
+        
+        <div class="lesson-details">
+            <h2 id="title">Загрузка...</h2>
+            <p id="desc">Пожалуйста, выберите упражнение из списка ниже.</p>
+            <button id="status-btn" class="action-btn">Отметить как выполненное</button>
+        </div>
+        
+        <div class="playlist-header">Список упражнений</div>
+        <div class="playlist" id="playlist-container"></div>
+    </div>
 
-.lesson-details { padding: 20px; background: #1c1c1e; border-bottom: 1px solid #2c2c2e;
-}
-.lesson-details h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color:
-#ffffff; }
-.lesson-details p { font-size: 14px; color: #aeaeb2; line-height: 1.4; margin-bottom:
-16px; }
-.action-btn { display: block; width: 100%; padding: 16px; background: #0a84ff; color:
-#ffffff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; text-align:
-center; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-.action-btn:active { transform: scale(0.98); }
-.action-btn.completed { background: #30d158; }
-.playlist-header { padding: 20px 20px 10px 20px; font-size: 14px; text-transform:
-uppercase; color: #8e8e93; font-weight: 600; letter-spacing: 0.5px; }
-.playlist { padding: 0 20px 30px 20px; }
-.playlist-item { display: flex; align-items: center; padding: 16px; background: #1c1c1e;
-border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent;
-transition: border-color 0.2s, background-color 0.2s; }
-.playlist-item.active { border-color: #0a84ff; background: #2c2c2e; }
-.item-info { flex-grow: 1; }
-.item-title { font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
-.item-status { font-size: 13px; color: #8e8e93; }
-.playlist-item.active .item-title { color: #0a84ff; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-background: rgba(0,0,0,0.8); z-index: 20; justify-content: center; align-items: flex-end; }
-.modal.active { display: flex; }
-.modal-content { background: #1c1c1e; width: 100%; max-width: 600px; height: 80vh;
-border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; display: flex; flex-direction:
-column;}
-.modal-header { display: flex; justify-content: space-between; align-items: center;
-margin-bottom: 20px; }
-.modal-header h2 { font-size: 20px; margin: 0; }
-.close-modal { background: #3a3a3c; border: none; color: white; width: 30px; height:
-30px; border-radius: 15px; font-size: 16px; cursor: pointer; display: flex; justify-content:
-center; align-items: center; }
-.history-container { flex-grow: 1; overflow-y: auto; }
-.history-day { margin-bottom: 20px; }
-.history-date { font-size: 14px; color: #8e8e93; margin-bottom: 8px; text-transform:
-uppercase; font-weight: 600;}
-.history-item { background: #2c2c2e; padding: 12px 16px; border-radius: 10px; margin-
-bottom: 6px; font-size: 15px; color: #fff;}
-.empty-history { text-align: center; color: #8e8e93; margin-top: 50px; font-size: 15px;}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;div class=&quot;app-container&quot;&gt;
-&lt;header&gt;
-&lt;div style=&quot;width: 70px;&quot;&gt;&lt;/div&gt;
-&lt;h1&gt;Курс ЛФК&lt;/h1&gt;
-&lt;button class=&quot;history-btn&quot; id=&quot;open-history&quot;&gt;График&lt;/button&gt;
-&lt;/header&gt;
-&lt;div class=&quot;video-wrapper&quot;&gt;
-&lt;video id=&quot;player&quot; controls playsinline&gt;
-&lt;source src=&quot;16224109988534.mp4&quot; type=&quot;video/mp4&quot;&gt;
-Ваш браузер не поддерживает видео.
-&lt;/video&gt;
-&lt;/div&gt;
-&lt;div class=&quot;lesson-details&quot;&gt;
+    <div class="modal" id="history-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>График занятий</h2>
+                <button class="close-modal" id="close-history">✕</button>
+            </div>
+            <div class="history-container" id="history-container"></div>
+        </div>
+    </div>
 
-&lt;h2 id=&quot;title&quot;&gt;Загрузка...&lt;/h2&gt;
-&lt;p id=&quot;desc&quot;&gt;Пожалуйста, выберите упражнение из списка ниже.&lt;/p&gt;
-&lt;button id=&quot;status-btn&quot; class=&quot;action-btn&quot;&gt;Отметить как выполненное&lt;/button&gt;
-&lt;/div&gt;
-&lt;div class=&quot;playlist-header&quot;&gt;Список упражнений&lt;/div&gt;
-&lt;div class=&quot;playlist&quot; id=&quot;playlist-container&quot;&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&quot;modal&quot; id=&quot;history-modal&quot;&gt;
-&lt;div class=&quot;modal-content&quot;&gt;
-&lt;div class=&quot;modal-header&quot;&gt;
-&lt;h2&gt;График занятий&lt;/h2&gt;
-&lt;button class=&quot;close-modal&quot; id=&quot;close-history&quot;&gt;✕&lt;/button&gt;
-&lt;/div&gt;
-&lt;div class=&quot;history-container&quot; id=&quot;history-container&quot;&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;script&gt;
-const lessons = [
-{ id: &#39;u1&#39;, src: &#39;16224109988534.mp4&#39;, title: &#39;Урок 1: Разминка и подготовка&#39;, desc:
-&#39;Вводная часть комплекса.&#39; },
-{ id: &#39;u2&#39;, src: &#39;16224109267638.mp4&#39;, title: &#39;Урок 2: Базовая активация&#39;, desc:
-&#39;Начало работы с фитнес-резинками.&#39; },
-{ id: &#39;u3&#39;, src: &#39;16224108481206.mp4&#39;, title: &#39;Урок 3: Основной силовой блок&#39;, desc:
-&#39;Проработка целевых мышечных групп.&#39; },
-{ id: &#39;u4&#39;, src: &#39;16224674122422.mp4&#39;, title: &#39;Урок 4: Интенсивный комплекс&#39;, desc:
-&#39;Увеличиваем амплитуду движений.&#39; },
-{ id: &#39;u5&#39;, src: &#39;16224359484086.mp4&#39;, title: &#39;Урок 5: Укрепление и баланс&#39;, desc:
-&#39;Статическая и динамическая нагрузка.&#39; },
-{ id: &#39;u6&#39;, src: &#39;16224629033654.mp4&#39;, title: &#39;Урок 6: Растяжка и заминка&#39;, desc:
-&#39;Восстановление пульса и растяжение.&#39; }
-];
-let currentIndex = 0;
-const player = document.getElementById(&#39;player&#39;);
-const titleView = document.getElementById(&#39;title&#39;);
-const descView = document.getElementById(&#39;desc&#39;);
-const statusBtn = document.getElementById(&#39;status-btn&#39;);
-const playlistContainer = document.getElementById(&#39;playlist-container&#39;);
-const historyModal = document.getElementById(&#39;history-modal&#39;);
-const openHistoryBtn = document.getElementById(&#39;open-history&#39;);
-const closeHistoryBtn = document.getElementById(&#39;close-history&#39;);
-const historyContainer = document.getElementById(&#39;history-container&#39;);
-let userProgress = JSON.parse(localStorage.getItem(&#39;lfc_progress&#39;)) || {};
-let userHistory = JSON.parse(localStorage.getItem(&#39;lfc_history&#39;)) || [];
-function initLesson(index) {
-currentIndex = index;
+    <script>
+        const lessons = [
+            { id: 'u1', src: '16224109988534.mp4', title: 'Урок 1: Разминка и подготовка', desc: 'Вводная часть комплекса.' },
+            { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Базовая активация', desc: 'Начало работы с фитнес-резинками.' },
+            { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Основной силовой блок', desc: 'Проработка целевых мышечных групп.' },
+            { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Интенсивный комплекс', desc: 'Увеличиваем амплитуду движений.' },
+            { id: 'u5', src: '16224359484086.mp4', title: 'Урок 5: Укрепление и баланс', desc: 'Статическая и динамическая нагрузка.' },
+            { id: 'u6', src: '16224629033654.mp4', title: 'Урок 6: Растяжка и заминка', desc: 'Восстановление пульса и растяжение.' }
+        ];
 
-const current = lessons[index];
-player.src = current.src;
-titleView.textContent = current.title;
-descView.textContent = current.desc;
-updateButton();
-renderPlaylist();
-}
-function updateButton() {
-const currentId = lessons[currentIndex].id;
-if (userProgress[currentId]) {
-statusBtn.textContent = &#39;Выполнено ✓&#39;;
-statusBtn.classList.add(&#39;completed&#39;);
-} else {
-statusBtn.textContent = &#39;Отметить как выполненное&#39;;
-statusBtn.classList.remove(&#39;completed&#39;);
-}
-}
-statusBtn.addEventListener(&#39;click&#39;, () =&gt; {
-const currentId = lessons[currentIndex].id;
-const currentTitle = lessons[currentIndex].title;
-const today = new Date().toLocaleDateString(&#39;ru-RU&#39;, { day: &#39;numeric&#39;, month:
-&#39;long&#39;, year: &#39;numeric&#39; });
-userProgress[currentId] = !userProgress[currentId];
-localStorage.setItem(&#39;lfc_progress&#39;, JSON.stringify(userProgress));
-if (userProgress[currentId]) {
-userHistory.unshift({ id: currentId, title: currentTitle, date: today,
-timestamp: Date.now() });
-} else {
-const idx = userHistory.findIndex(h =&gt; h.id === currentId &amp;&amp; h.date === today);
-if (idx &gt; -1) userHistory.splice(idx, 1);
-}
-localStorage.setItem(&#39;lfc_history&#39;, JSON.stringify(userHistory));
-updateButton();
-renderPlaylist();
-renderHistory();
-});
-function renderPlaylist() {
-playlistContainer.innerHTML = &#39;&#39;;
-lessons.forEach((lesson, idx) =&gt; {
-const item = document.createElement(&#39;div&#39;);
-item.className = `playlist-item ${idx === currentIndex ? &#39;active&#39; : &#39;&#39;}`;
-const info = document.createElement(&#39;div&#39;);
-info.className = &#39;item-info&#39;;
-const title = document.createElement(&#39;div&#39;);
-title.className = &#39;item-title&#39;;
-title.textContent = lesson.title;
-const status = document.createElement(&#39;div&#39;);
-status.className = &#39;item-status&#39;;
+        let currentIndex = 0;
+        const player = document.getElementById('player');
+        const titleView = document.getElementById('title');
+        const descView = document.getElementById('desc');
+        const statusBtn = document.getElementById('status-btn');
+        const playlistContainer = document.getElementById('playlist-container');
+        const historyModal = document.getElementById('history-modal');
+        const openHistoryBtn = document.getElementById('open-history');
+        const closeHistoryBtn = document.getElementById('close-history');
+        const historyContainer = document.getElementById('history-container');
 
-status.textContent = userProgress[lesson.id] ? &#39;Выполнено&#39; : &#39;Предстоит
-выполнить&#39;;
-if (userProgress[lesson.id]) status.style.color = &#39;#30d158&#39;;
-info.appendChild(title);
-info.appendChild(status);
-item.appendChild(info);
-item.addEventListener(&#39;click&#39;, () =&gt; {
-initLesson(idx);
-player.play();
-});
-playlistContainer.appendChild(item);
-});
-}
-function renderHistory() {
-historyContainer.innerHTML = &#39;&#39;;
-if (userHistory.length === 0) {
-historyContainer.innerHTML = &#39;&lt;div class=&quot;empty-history&quot;&gt;Вы пока не выполнили
-ни одного упражнения.&lt;/div&gt;&#39;;
-return;
-}
-const grouped = userHistory.reduce((acc, item) =&gt; {
-if (!acc[item.date]) acc[item.date] = [];
-if (!acc[item.date].some(x =&gt; x.id === item.id)) {
-acc[item.date].push(item);
-}
-return acc;
-}, {});
-for (const [date, items] of Object.entries(grouped)) {
-const dayDiv = document.createElement(&#39;div&#39;);
-dayDiv.className = &#39;history-day&#39;;
-const dateHeader = document.createElement(&#39;div&#39;);
-dateHeader.className = &#39;history-date&#39;;
-dateHeader.textContent = date;
-dayDiv.appendChild(dateHeader);
-items.forEach(item =&gt; {
-const itemDiv = document.createElement(&#39;div&#39;);
-itemDiv.className = &#39;history-item&#39;;
-itemDiv.textContent = item.title;
-dayDiv.appendChild(itemDiv);
-});
-historyContainer.appendChild(dayDiv);
-}
-}
-openHistoryBtn.addEventListener(&#39;click&#39;, () =&gt; {
-renderHistory();
-historyModal.classList.add(&#39;active&#39;);
-});
+        let userProgress = JSON.parse(localStorage.getItem('lfc_progress')) || {};
+        let userHistory = JSON.parse(localStorage.getItem('lfc_history')) || [];
 
-closeHistoryBtn.addEventListener(&#39;click&#39;, () =&gt; {
-historyModal.classList.remove(&#39;active&#39;);
-});
-initLesson(0);
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+        function initLesson(index) {
+            currentIndex = index;
+            const current = lessons[index];
+            player.src = current.src;
+            titleView.textContent = current.title;
+            descView.textContent = current.desc;
+            updateButton();
+            renderPlaylist();
+        }
+
+        function updateButton() {
+            const currentId = lessons[currentIndex].id;
+            if (userProgress[currentId]) {
+                statusBtn.textContent = 'Выполнено ✓';
+                statusBtn.classList.add('completed');
+            } else {
+                statusBtn.textContent = 'Отметить как выполненное';
+                statusBtn.classList.remove('completed');
+            }
+        }
+
+        statusBtn.addEventListener('click', () => {
+            const currentId = lessons[currentIndex].id;
+            const currentTitle = lessons[currentIndex].title;
+            const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            userProgress[currentId] = !userProgress[currentId];
+            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
+
+            if (userProgress[currentId]) {
+                userHistory.unshift({ id: currentId, title: currentTitle, date: today, timestamp: Date.now() });
+            } else {
+                const idx = userHistory.findIndex(h => h.id === currentId && h.date === today);
+                if (idx > -1) userHistory.splice(idx, 1);
+            }
+            
+            localStorage.setItem('lfc_history', JSON.stringify(userHistory));
+
+            updateButton();
+            renderPlaylist();
+            renderHistory();
+        });
+
+        function renderPlaylist() {
+            playlistContainer.innerHTML = '';
+            lessons.forEach((lesson, idx) => {
+                const item = document.createElement('div');
+                item.className = `playlist-item ${idx === currentIndex ? 'active' : ''}`;
+                
+                const info = document.createElement('div');
+                info.className = 'item-info';
+                
+                const title = document.createElement('div');
+                title.className = 'item-title';
+                title.textContent = lesson.title;
+                
+                const status = document.createElement('div');
+                status.className = 'item-status';
+                status.textContent = userProgress[lesson.id] ? 'Выполнено' : 'Предстоит выполнить';
+                if (userProgress[lesson.id]) status.style.color = '#30d158';
+                
+                info.appendChild(title);
+                info.appendChild(status);
+                item.appendChild(info);
+                
+                item.addEventListener('click', () => {
+                    initLesson(idx);
+                    player.play();
+                });
+                
+                playlistContainer.appendChild(item);
+            });
+        }
+
+        function renderHistory() {
+            historyContainer.innerHTML = '';
+            if (userHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="empty-history">Вы пока не выполнили ни одного упражнения.</div>';
+                return;
+            }
+
+            const grouped = userHistory.reduce((acc, item) => {
+                if (!acc[item.date]) acc[item.date] = [];
+                if (!acc[item.date].some(x => x.id === item.id)) {
+                    acc[item.date].push(item);
+                }
+                return acc;
+            }, {});
+
+            for (const [date, items] of Object.entries(grouped)) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'history-day';
+                
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'history-date';
+                dateHeader.textContent = date;
+                dayDiv.appendChild(dateHeader);
+
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'history-item';
+                    itemDiv.textContent = item.title;
+                    dayDiv.appendChild(itemDiv);
+                });
+
+                historyContainer.appendChild(dayDiv);
+            }
+        }
+
+        openHistoryBtn.addEventListener('click', () => {
+            renderHistory();
+            historyModal.classList.add('active');
+        });
+
+        closeHistoryBtn.addEventListener('click', () => {
+            historyModal.classList.remove('active');
+        });
+
+        initLesson(0);
+    </script>
+</body>
+</html>
