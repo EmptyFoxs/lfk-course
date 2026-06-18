@@ -38,9 +38,9 @@
         .modal-header h2 { font-size: 20px; margin: 0; }
         .close-modal { background: #3a3a3c; border: none; color: white; width: 30px; height: 30px; border-radius: 15px; font-size: 16px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
         .history-container { flex-grow: 1; overflow-y: auto; }
-        .history-day { margin-bottom: 20px; }
+        .history-day { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;}
         .history-date { font-size: 14px; color: #8e8e93; margin-bottom: 8px; text-transform: uppercase; font-weight: 600;}
-        .history-item { background: #2c2c2e; padding: 12px 16px; border-radius: 10px; margin-bottom: 6px; font-size: 15px; color: #fff;}
+        .history-item { font-size: 15px; color: #fff;}
         .empty-history { text-align: center; color: #8e8e93; margin-top: 50px; font-size: 15px;}
     </style>
 </head>
@@ -55,13 +55,12 @@
         <div class="video-wrapper">
             <video id="player" controls playsinline>
                 <source src="16224109988534.mp4" type="video/mp4">
-                Ваш браузер не поддерживает видео.
             </video>
         </div>
         
         <div class="lesson-details">
             <h2 id="title">Загрузка...</h2>
-            <p id="desc">Пожалуйста, выберите упражнение из списка ниже.</p>
+            <p id="desc">Выберите упражнение из списка.</p>
             <button id="status-btn" class="action-btn">Отметить как выполненное</button>
         </div>
         
@@ -81,178 +80,101 @@
 
     <script>
         const lessons = [
-            { id: 'u1', src: '16224109988534.mp4', title: 'Урок 1: Разминка и подготовка', desc: 'Вводная часть комплекса.' },
-            { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Базовая активация', desc: 'Начало работы с фитнес-резинками.' },
-            { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Основной силовой блок', desc: 'Проработка целевых мышечных групп.' },
-            { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Интенсивный комплекс', desc: 'Увеличиваем амплитуду движений.' },
-            { id: 'u5', src: '16224359484086.mp4', title: 'Урок 5: Укрепление и баланс', desc: 'Статическая и динамическая нагрузка.' },
-            { id: 'u6', src: '16224629033654.mp4', title: 'Урок 6: Растяжка и заминка', desc: 'Восстановление пульса и растяжение.' }
+            { id: 'u1', src: '16224109988534.mp4', title: 'Урок 1: Разминка' },
+            { id: 'u2', src: '16224109267638.mp4', title: 'Урок 2: Базовая активация' },
+            { id: 'u3', src: '16224108481206.mp4', title: 'Урок 3: Основной блок' },
+            { id: 'u4', src: '16224674122422.mp4', title: 'Урок 4: Интенсив' },
+            { id: 'u5', src: '16224359484086.mp4', title: 'Урок 5: Укрепление' },
+            { id: 'u6', src: '16224629033654.mp4', title: 'Урок 6: Заминка' }
         ];
 
         let currentIndex = 0;
-        const player = document.getElementById('player');
-        const titleView = document.getElementById('title');
-        const descView = document.getElementById('desc');
-        const statusBtn = document.getElementById('status-btn');
-        const playlistContainer = document.getElementById('playlist-container');
-        const historyModal = document.getElementById('history-modal');
-        const openHistoryBtn = document.getElementById('open-history');
-        const closeHistoryBtn = document.getElementById('close-history');
-        const historyContainer = document.getElementById('history-container');
-
-        // Получаем текущую дату (без времени)
-        const todayString = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-        
-        // Достаем дату последнего визита и прогресс
-        let savedDate = localStorage.getItem('lfc_last_date');
         let userProgress = JSON.parse(localStorage.getItem('lfc_progress')) || {};
         let userHistory = JSON.parse(localStorage.getItem('lfc_history')) || [];
+        const todayString = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // ЕЖЕДНЕВНЫЙ СБРОС: Если дата не совпадает с сегодняшней — обнуляем прогресс (но не историю!)
-        if (savedDate !== todayString) {
+        // Сброс дня
+        if (localStorage.getItem('lfc_last_date') !== todayString) {
             userProgress = {};
-            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
             localStorage.setItem('lfc_last_date', todayString);
         }
 
+        const player = document.getElementById('player');
+        const titleView = document.getElementById('title');
+        const statusBtn = document.getElementById('status-btn');
+        const playlistContainer = document.getElementById('playlist-container');
+
         function initLesson(index) {
             currentIndex = index;
-            const current = lessons[index];
-            player.src = current.src;
-            titleView.textContent = current.title;
-            descView.textContent = current.desc;
+            player.src = lessons[index].src;
+            titleView.textContent = lessons[index].title;
             updateButton();
             renderPlaylist();
         }
 
         function updateButton() {
-            const currentId = lessons[currentIndex].id;
-            if (userProgress[currentId]) {
-                statusBtn.textContent = 'Выполнено ✓';
-                statusBtn.classList.add('completed');
-            } else {
-                statusBtn.textContent = 'Отметить как выполненное';
-                statusBtn.classList.remove('completed');
-            }
+            statusBtn.textContent = userProgress[lessons[currentIndex].id] ? 'Выполнено ✓' : 'Отметить как выполненное';
+            statusBtn.className = 'action-btn ' + (userProgress[lessons[currentIndex].id] ? 'completed' : '');
         }
 
         statusBtn.addEventListener('click', () => {
             const currentId = lessons[currentIndex].id;
-            const currentTitle = lessons[currentIndex].title;
-
             userProgress[currentId] = !userProgress[currentId];
             localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
 
-            if (userProgress[currentId]) {
-                userHistory.unshift({ id: currentId, title: currentTitle, date: todayString, timestamp: Date.now() });
-            } else {
-                const idx = userHistory.findIndex(h => h.id === currentId && h.date === todayString);
-                if (idx > -1) userHistory.splice(idx, 1);
-            }
+            // Проверка: завершены ли все 6 уроков?
+            const allFinished = lessons.every(l => userProgress[l.id] === true);
             
-            localStorage.setItem('lfc_history', JSON.stringify(userHistory));
+            if (allFinished) {
+                // Проверяем, не вносили ли мы уже боль сегодня
+                const todayEntry = userHistory.find(h => h.date === todayString);
+                if (!todayEntry) {
+                    const pain = prompt("Все уроки выполнены! Оцените общий уровень дискомфорта (1-10):", "0");
+                    userHistory.unshift({ date: todayString, pain: pain });
+                    localStorage.setItem('lfc_history', JSON.stringify(userHistory));
+                }
+            }
 
             updateButton();
             renderPlaylist();
-            renderHistory();
         });
 
         function renderPlaylist() {
             playlistContainer.innerHTML = '';
-            lessons.forEach((lesson, idx) => {
+            lessons.forEach((l, idx) => {
                 const item = document.createElement('div');
                 item.className = `playlist-item ${idx === currentIndex ? 'active' : ''}`;
-                
-                const info = document.createElement('div');
-                info.className = 'item-info';
-                
-                const title = document.createElement('div');
-                title.className = 'item-title';
-                title.textContent = lesson.title;
-                
-                const status = document.createElement('div');
-                status.className = 'item-status';
-                status.textContent = userProgress[lesson.id] ? 'Выполнено' : 'Предстоит выполнить';
-                if (userProgress[lesson.id]) status.style.color = '#30d158';
-                
-                info.appendChild(title);
-                info.appendChild(status);
-                item.appendChild(info);
-                
-                item.addEventListener('click', () => {
-                    initLesson(idx);
-                    player.play();
-                });
-                
+                item.innerHTML = `<div class="item-info"><div class="item-title">${l.title}</div><div class="item-status">${userProgress[l.id] ? 'Выполнено' : 'Предстоит'}</div></div>`;
+                item.onclick = () => initLesson(idx);
                 playlistContainer.appendChild(item);
             });
         }
 
-        function renderHistory() {
-            historyContainer.innerHTML = '';
-            if (userHistory.length === 0) {
-                historyContainer.innerHTML = '<div class="empty-history">Вы пока не выполнили ни одного упражнения.</div>';
-                return;
-            }
+        document.getElementById('open-history').onclick = () => {
+            const histCont = document.getElementById('history-container');
+            histCont.innerHTML = userHistory.length ? '' : '<div class="empty-history">История пуста.</div>';
+            userHistory.forEach(h => {
+                histCont.innerHTML += `<div class="history-day"><div class="history-date">${h.date}</div><div class="history-item">Общий дискомфорт: ${h.pain}/10</div></div>`;
+            });
+            document.getElementById('history-modal').classList.add('active');
+        };
 
-            const grouped = userHistory.reduce((acc, item) => {
-                if (!acc[item.date]) acc[item.date] = [];
-                if (!acc[item.date].some(x => x.id === item.id)) {
-                    acc[item.date].push(item);
-                }
-                return acc;
-            }, {});
+        document.getElementById('close-history').onclick = () => document.getElementById('history-modal').classList.remove('active');
 
-            for (const [date, items] of Object.entries(grouped)) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'history-day';
-                
-                const dateHeader = document.createElement('div');
-                dateHeader.className = 'history-date';
-                dateHeader.textContent = date;
-                dayDiv.appendChild(dateHeader);
-
-                items.forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'history-item';
-                    itemDiv.textContent = item.title;
-                    dayDiv.appendChild(itemDiv);
-                });
-
-                historyContainer.appendChild(dayDiv);
-            }
+        if ("Notification" in window) Notification.requestPermission();
+        // Функция для проверки времени и отправки уведомления в 19:00
+setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === 19 && now.getMinutes() === 0) {
+        if (Notification.permission === "granted") {
+            new Notification("Время для ЛФК!", {
+                body: "Не забудьте выполнить упражнения и отметить прогресс.",
+                icon: "https://cdn-icons-png.flaticon.com/512/2942/2942767.png"
+            });
         }
-
-        openHistoryBtn.addEventListener('click', () => {
-            renderHistory();
-            historyModal.classList.add('active');
-        });
-
-        closeHistoryBtn.addEventListener('click', () => {
-            historyModal.classList.remove('active');
-        });
-
-        initLesson(0);
-statusBtn.addEventListener('click', () => {
-        const currentId = lessons[currentIndex].id;
-        if (!userProgress[currentId]) {
-            // Запрашиваем уровень боли
-            const painLevel = prompt("Оцените уровень дискомфорта (1-10)?", "0");
-            const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-            
-            userProgress[currentId] = true;
-            userHistory.unshift({ id: currentId, title: lessons[currentIndex].title, date: today, pain: painLevel });
-            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
-            localStorage.setItem('lfc_history', JSON.stringify(userHistory));
-        }
-        updateButton();
-        renderPlaylist();
-    });
-
-    // Логика Push-уведомлений
-    if ("Notification" in window) {
-        Notification.requestPermission();
     }
-</script>
+}, 60000); // Проверяет каждую минуту
+        initLesson(0);
+    </script>
 </body>
 </html>
