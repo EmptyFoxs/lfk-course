@@ -100,8 +100,20 @@
         const closeHistoryBtn = document.getElementById('close-history');
         const historyContainer = document.getElementById('history-container');
 
+        // Получаем текущую дату (без времени)
+        const todayString = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        
+        // Достаем дату последнего визита и прогресс
+        let savedDate = localStorage.getItem('lfc_last_date');
         let userProgress = JSON.parse(localStorage.getItem('lfc_progress')) || {};
         let userHistory = JSON.parse(localStorage.getItem('lfc_history')) || [];
+
+        // ЕЖЕДНЕВНЫЙ СБРОС: Если дата не совпадает с сегодняшней — обнуляем прогресс (но не историю!)
+        if (savedDate !== todayString) {
+            userProgress = {};
+            localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
+            localStorage.setItem('lfc_last_date', todayString);
+        }
 
         function initLesson(index) {
             currentIndex = index;
@@ -127,15 +139,14 @@
         statusBtn.addEventListener('click', () => {
             const currentId = lessons[currentIndex].id;
             const currentTitle = lessons[currentIndex].title;
-            const today = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 
             userProgress[currentId] = !userProgress[currentId];
             localStorage.setItem('lfc_progress', JSON.stringify(userProgress));
 
             if (userProgress[currentId]) {
-                userHistory.unshift({ id: currentId, title: currentTitle, date: today, timestamp: Date.now() });
+                userHistory.unshift({ id: currentId, title: currentTitle, date: todayString, timestamp: Date.now() });
             } else {
-                const idx = userHistory.findIndex(h => h.id === currentId && h.date === today);
+                const idx = userHistory.findIndex(h => h.id === currentId && h.date === todayString);
                 if (idx > -1) userHistory.splice(idx, 1);
             }
             
